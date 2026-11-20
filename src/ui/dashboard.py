@@ -51,6 +51,23 @@ class StudentInputs:
 def render_dashboard() -> StudentInputs | None:
     """Muestra el encabezado y el formulario de evaluación."""
     if not st.session_state.get("welcome_dialog_dismissed", False):
+        st.html(
+            """
+            <style>
+            @media (max-width: 640px) {
+                [role="dialog"] {
+                    position: fixed !important;
+                    top: 50vh !important;
+                    top: 50dvh !important;
+                    left: 50vw !important;
+                    transform: translate(-50%, -50%) !important;
+                    max-height: calc(100dvh - 2rem) !important;
+                    overflow-y: auto !important;
+                }
+            }
+            </style>
+            """
+        )
         _render_welcome_dialog()
         return None
 
