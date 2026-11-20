@@ -10,17 +10,15 @@ from src.services.tutoring import TutoringAdvice
 
 
 @st.dialog(
-    "Bienvenido al Evaluador de Riesgo Académico",
+    "Antes de comenzar",
     width="small",
     dismissible=False,
 )
 def _render_welcome_dialog() -> None:
     """Muestra las indicaciones iniciales de la aplicación."""
     st.write(
-        "Ingresa la asistencia, el promedio y las horas de estudio para "
-        "obtener una evaluación orientativa y recomendaciones de tutoría. "
-        "El resultado se basa en datos de ejemplo y no sustituye la "
-        "valoración de un docente."
+        "Esta orientación se basa en datos de ejemplo y no sustituye "
+        "la valoración de un docente."
     )
 
     if st.button(
@@ -62,8 +60,8 @@ def render_dashboard() -> StudentInputs | None:
                     [data-testid="stDialog"] {
                         padding-top: clamp(
                             6rem,
-                            16dvh,
-                            9rem
+                            20dvh,
+                            10rem
                         ) !important;
                     }
                 }
