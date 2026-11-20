@@ -1,7 +1,6 @@
 """Pantalla exclusiva para mostrar el resultado de una evaluación."""
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 
 import streamlit as st
@@ -79,7 +78,7 @@ def render_results(result: EvaluationResults) -> bool:
 
     return st.button(
         "Volver al formulario",
-        type="secondary",
+        type="primary",
         width="content",
         key="back_to_form_button",
     )

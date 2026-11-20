@@ -1,7 +1,6 @@
 """Componentes visuales y controles del formulario de evaluación."""
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 
 import streamlit as st
@@ -15,8 +14,9 @@ import streamlit as st
 def _render_welcome_dialog() -> None:
     """Muestra el saludo y la nota informativa inicial."""
     st.write(
-        "El resultado es orientativo, se basa en datos de ejemplo y no "
-        "sustituye la valoración de un docente."
+        "Esta herramienta ofrece una orientación sobre el riesgo académico "
+        "mediante inteligencia artificial. Los resultados son orientativos "
+        "y no sustituyen la valoración de un docente."
     )
 
     if st.button(
@@ -52,7 +52,18 @@ def render_dashboard() -> StudentInputs | None:
         st.html(
             """
             <style>
-                /* Ajuste vertical del modal en dispositivos móviles. */
+                /* Posición del modal en computadoras. */
+                @media (min-width: 769px) {
+                    [data-testid="stDialog"] {
+                        padding-top: clamp(
+                            10rem,
+                            35dvh,
+                            24rem
+                        ) !important;
+                    }
+                }
+
+                /* Ajuste original para dispositivos móviles. */
                 @media (max-width: 640px) {
                     [data-testid="stDialog"] {
                         padding-top: clamp(
@@ -70,9 +81,11 @@ def render_dashboard() -> StudentInputs | None:
 
     st.title("Evaluador de Riesgo Académico")
     st.write(
-        "Evalúa indicadores académicos con un clasificador Random Forest y, "
-        "si Groq está configurado, solicita una orientación de tutoría."
+        "Ingresa la asistencia, el promedio académico y las horas de estudio "
+        "semanales para evaluar el riesgo académico mediante Random Forest. "
+        "Si Groq está configurado, también recibirás recomendaciones de tutoría."
     )
+
     st.subheader("Parámetros del estudiante")
 
     with st.form("student_evaluation"):
@@ -88,6 +101,7 @@ def render_dashboard() -> StudentInputs | None:
                 key="student_attendance",
                 persist_state="session",
             )
+
             promedio = st.number_input(
                 "Promedio académico",
                 min_value=0.0,
@@ -108,6 +122,7 @@ def render_dashboard() -> StudentInputs | None:
                 key="student_study_hours",
                 persist_state="session",
             )
+
             st.caption("Introduce valores dentro de los rangos indicados.")
 
         submitted = st.form_submit_button(
