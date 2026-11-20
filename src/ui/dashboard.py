@@ -1,24 +1,22 @@
-"""Componentes visuales y controles de la aplicación Streamlit."""
+"""Componentes visuales y controles del formulario de evaluación."""
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 import streamlit as st
 
-from src.ml.predictor import PredictionResult
-from src.services.tutoring import TutoringAdvice
-
 
 @st.dialog(
-    "Antes de comenzar",
+    "¡Hola, te damos la bienvenida!",
     width="small",
     dismissible=False,
 )
 def _render_welcome_dialog() -> None:
-    """Muestra las indicaciones iniciales de la aplicación."""
+    """Muestra el saludo y la nota informativa inicial."""
     st.write(
-        "Esta orientación se basa en datos de ejemplo y no sustituye "
-        "la valoración de un docente."
+        "El resultado es orientativo, se basa en datos de ejemplo y no "
+        "sustituye la valoración de un docente."
     )
 
     if st.button(
@@ -49,8 +47,7 @@ class StudentInputs:
 
 
 def render_dashboard() -> StudentInputs | None:
-    """Muestra el encabezado y el formulario de evaluación."""
-
+    """Muestra el saludo y el formulario de evaluación."""
     if not st.session_state.get("welcome_dialog_dismissed", False):
         st.html(
             """
@@ -68,17 +65,14 @@ def render_dashboard() -> StudentInputs | None:
             </style>
             """
         )
-
         _render_welcome_dialog()
         return None
 
-    st.title("Evaluador Predictivo de Riesgo Académico")
-
+    st.title("Evaluador de Riesgo Académico")
     st.write(
         "Evalúa indicadores académicos con un clasificador Random Forest y, "
         "si Groq está configurado, solicita una orientación de tutoría."
     )
-
     st.subheader("Parámetros del estudiante")
 
     with st.form("student_evaluation"):
@@ -91,8 +85,9 @@ def render_dashboard() -> StudentInputs | None:
                 max_value=100,
                 value=80,
                 format="%d%%",
+                key="student_attendance",
+                persist_state="session",
             )
-
             promedio = st.number_input(
                 "Promedio académico",
                 min_value=0.0,
@@ -100,6 +95,8 @@ def render_dashboard() -> StudentInputs | None:
                 value=7.5,
                 step=0.1,
                 format="%.1f",
+                key="student_average",
+                persist_state="session",
             )
 
         with right_column:
@@ -108,11 +105,10 @@ def render_dashboard() -> StudentInputs | None:
                 min_value=0,
                 max_value=30,
                 value=8,
+                key="student_study_hours",
+                persist_state="session",
             )
-
-            st.caption(
-                "Introduce valores dentro de los rangos indicados."
-            )
+            st.caption("Introduce valores dentro de los rangos indicados.")
 
         submitted = st.form_submit_button(
             "Evaluar Estudiante",
@@ -130,67 +126,6 @@ def render_dashboard() -> StudentInputs | None:
     )
 
 
-def render_prediction(result: PredictionResult) -> None:
-    """Presenta el diagnóstico y las probabilidades del clasificador."""
-
-    st.subheader("Diagnóstico del modelo predictivo")
-
-    if result.risk_class == 1:
-        st.error("Riesgo Alto de Deserción")
-
-        selected_name = (
-            "Probabilidad del clasificador para la clase de alto riesgo"
-        )
-    else:
-        st.success("Bajo Riesgo Académico")
-
-        selected_name = (
-            "Probabilidad del clasificador para la clase de bajo riesgo"
-        )
-
-    st.metric(
-        selected_name,
-        f"{result.predicted_class_probability:.1%}",
-    )
-
-    low_column, high_column = st.columns(2)
-
-    low_column.metric(
-        "Clase 0 · Bajo riesgo",
-        f"{result.low_risk_probability:.1%}",
-    )
-
-    high_column.metric(
-        "Clase 1 · Alto riesgo",
-        f"{result.high_risk_probability:.1%}",
-    )
-
-    st.caption(
-        "Estas probabilidades corresponden al clasificador entrenado con "
-        "20 registros de ejemplo; no son una estimación validada de "
-        "deserción ni una certeza."
-    )
-
-
-def render_tutoring(advice: TutoringAdvice) -> None:
-    """Presenta el modelo seleccionado y la tutoría generada."""
-
-    st.subheader("Plan de tutoría automatizado")
-
-    st.caption(
-        f"Respuesta generada con Groq · Modelo: {advice.model_name}"
-    )
-
-    st.markdown(advice.content)
-
-
-def render_groq_setup_message(message: str) -> None:
-    """Informa que el diagnóstico funciona aunque Groq no esté configurado."""
-
-    st.info(message)
-
-
 def render_error(message: str) -> None:
     """Muestra un mensaje de error comprensible."""
-
     st.error(message)
