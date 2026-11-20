@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+
 import streamlit as st
+
 from src.ml.predictor import PredictionResult
 from src.services.tutoring import TutoringAdvice
 
@@ -50,32 +52,35 @@ class StudentInputs:
 
 def render_dashboard() -> StudentInputs | None:
     """Muestra el encabezado y el formulario de evaluación."""
+
     if not st.session_state.get("welcome_dialog_dismissed", False):
         st.html(
             """
             <style>
-            @media (max-width: 640px) {
-                [role="dialog"] {
-                    position: fixed !important;
-                    top: 50vh !important;
-                    top: 50dvh !important;
-                    left: 50vw !important;
-                    transform: translate(-50%, -50%) !important;
-                    max-height: calc(100dvh - 2rem) !important;
-                    overflow-y: auto !important;
+                /* Ajuste vertical del modal en dispositivos móviles. */
+                @media (max-width: 640px) {
+                    [data-testid="stDialog"] {
+                        padding-top: clamp(
+                            6rem,
+                            16dvh,
+                            9rem
+                        ) !important;
+                    }
                 }
-            }
             </style>
             """
         )
+
         _render_welcome_dialog()
         return None
 
     st.title("Evaluador Predictivo de Riesgo Académico")
+
     st.write(
         "Evalúa indicadores académicos con un clasificador Random Forest y, "
         "si Groq está configurado, solicita una orientación de tutoría."
     )
+
     st.subheader("Parámetros del estudiante")
 
     with st.form("student_evaluation"):
@@ -89,6 +94,7 @@ def render_dashboard() -> StudentInputs | None:
                 value=80,
                 format="%d%%",
             )
+
             promedio = st.number_input(
                 "Promedio académico",
                 min_value=0.0,
@@ -105,7 +111,10 @@ def render_dashboard() -> StudentInputs | None:
                 max_value=30,
                 value=8,
             )
-            st.caption("Introduce valores dentro de los rangos indicados.")
+
+            st.caption(
+                "Introduce valores dentro de los rangos indicados."
+            )
 
         submitted = st.form_submit_button(
             "Evaluar Estudiante",
@@ -125,15 +134,18 @@ def render_dashboard() -> StudentInputs | None:
 
 def render_prediction(result: PredictionResult) -> None:
     """Presenta el diagnóstico y las probabilidades del clasificador."""
+
     st.subheader("Diagnóstico del modelo predictivo")
 
     if result.risk_class == 1:
         st.error("Riesgo Alto de Deserción")
+
         selected_name = (
             "Probabilidad del clasificador para la clase de alto riesgo"
         )
     else:
         st.success("Bajo Riesgo Académico")
+
         selected_name = (
             "Probabilidad del clasificador para la clase de bajo riesgo"
         )
@@ -144,10 +156,12 @@ def render_prediction(result: PredictionResult) -> None:
     )
 
     low_column, high_column = st.columns(2)
+
     low_column.metric(
         "Clase 0 · Bajo riesgo",
         f"{result.low_risk_probability:.1%}",
     )
+
     high_column.metric(
         "Clase 1 · Alto riesgo",
         f"{result.high_risk_probability:.1%}",
@@ -162,16 +176,23 @@ def render_prediction(result: PredictionResult) -> None:
 
 def render_tutoring(advice: TutoringAdvice) -> None:
     """Presenta el modelo seleccionado y la tutoría generada."""
+
     st.subheader("Plan de tutoría automatizado")
-    st.caption(f"Respuesta generada con Groq · Modelo: {advice.model_name}")
+
+    st.caption(
+        f"Respuesta generada con Groq · Modelo: {advice.model_name}"
+    )
+
     st.markdown(advice.content)
 
 
 def render_groq_setup_message(message: str) -> None:
     """Informa que el diagnóstico funciona aunque Groq no esté configurado."""
+
     st.info(message)
 
 
 def render_error(message: str) -> None:
     """Muestra un mensaje de error comprensible."""
+
     st.error(message)
