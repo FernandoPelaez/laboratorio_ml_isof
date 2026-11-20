@@ -52,6 +52,7 @@ def render_dashboard() -> StudentInputs | None:
     """Muestra el encabezado y el formulario de evaluación."""
     if not st.session_state.get("welcome_dialog_dismissed", False):
         _render_welcome_dialog()
+        return None
 
     st.title("Evaluador Predictivo de Riesgo Académico")
     st.write(
