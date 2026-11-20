@@ -7,6 +7,30 @@ from src.ml.predictor import PredictionResult
 from src.services.tutoring import TutoringAdvice
 
 
+@st.dialog(
+    "Bienvenido al Evaluador de Riesgo Académico",
+    width="small",
+    dismissible=False,
+)
+def _render_welcome_dialog() -> None:
+    """Muestra las indicaciones iniciales de la aplicación."""
+    st.write(
+        "Ingresa la asistencia, el promedio y las horas de estudio para "
+        "obtener una evaluación orientativa y recomendaciones de tutoría. "
+        "El resultado se basa en datos de ejemplo y no sustituye la "
+        "valoración de un docente."
+    )
+
+    if st.button(
+        "Comenzar",
+        type="primary",
+        width="content",
+        key="welcome_start_button",
+    ):
+        st.session_state["welcome_dialog_dismissed"] = True
+        st.rerun()
+
+
 @dataclass(frozen=True)
 class StudentInputs:
     """Indicadores ingresados para evaluar a un estudiante."""
@@ -17,7 +41,6 @@ class StudentInputs:
 
     def as_dict(self) -> dict[str, float]:
         """Devuelve los indicadores en formato de diccionario."""
-
         return {
             "asistencia": self.asistencia,
             "promedio": self.promedio,
@@ -27,8 +50,9 @@ class StudentInputs:
 
 def render_dashboard() -> StudentInputs | None:
     """Muestra el encabezado y el formulario de evaluación."""
+    if not st.session_state.get("welcome_dialog_dismissed", False):
+        _render_welcome_dialog()
 
-    st.caption("ISOF CLASS · Laboratorio práctico de Machine Learning")
     st.title("Evaluador Predictivo de Riesgo Académico")
     st.write(
         "Evalúa indicadores académicos con un clasificador Random Forest y, "
@@ -83,7 +107,6 @@ def render_dashboard() -> StudentInputs | None:
 
 def render_prediction(result: PredictionResult) -> None:
     """Presenta el diagnóstico y las probabilidades del clasificador."""
-
     st.subheader("Diagnóstico del modelo predictivo")
 
     if result.risk_class == 1:
@@ -121,7 +144,6 @@ def render_prediction(result: PredictionResult) -> None:
 
 def render_tutoring(advice: TutoringAdvice) -> None:
     """Presenta el modelo seleccionado y la tutoría generada."""
-
     st.subheader("Plan de tutoría automatizado")
     st.caption(f"Respuesta generada con Groq · Modelo: {advice.model_name}")
     st.markdown(advice.content)
@@ -129,11 +151,9 @@ def render_tutoring(advice: TutoringAdvice) -> None:
 
 def render_groq_setup_message(message: str) -> None:
     """Informa que el diagnóstico funciona aunque Groq no esté configurado."""
-
     st.info(message)
 
 
 def render_error(message: str) -> None:
     """Muestra un mensaje de error comprensible."""
-
     st.error(message)
